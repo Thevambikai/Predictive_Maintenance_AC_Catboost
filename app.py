@@ -22,7 +22,7 @@ for target in target_columns:
 label_encoders = {}
 for target in target_columns:
     try:
-        with open(f'label_encoder_{target}.json', 'r') as f:
+        with open(f'l_encoder_{target}.json', 'r') as f:
             data = json.load(f)
             le = LabelEncoder()
             le.classes_ = np.array(data['classes'])
