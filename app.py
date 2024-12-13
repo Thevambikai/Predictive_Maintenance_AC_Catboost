@@ -11,18 +11,24 @@ target_columns = ['bearings', 'exvalve', 'radiator', 'wpump']
 # Load CatBoost models
 catboost_models = {}
 for target in target_columns:
-    model = CatBoostClassifier()
-    model.load_model(f'catboost_model_{target}.json')
-    catboost_models[target] = model
+    try:
+        model = CatBoostClassifier()
+        model.load_model(f'catboost_model_{target}.cbm')
+        catboost_models[target] = model
+    except Exception as e:
+        st.error(f"Error loading model for {target}: {e}")
 
 # Load Label Encoders
 label_encoders = {}
 for target in target_columns:
-    with open(f'label_encoder_{target}.json', 'r') as f:
-        data = json.load(f)
-        le = LabelEncoder()
-        le.classes_ = np.array(data['classes'])
-        label_encoders[target] = le
+    try:
+        with open(f'label_encoder_{target}.json', 'r') as f:
+            data = json.load(f)
+            le = LabelEncoder()
+            le.classes_ = np.array(data['classes'])
+            label_encoders[target] = le
+    except Exception as e:
+        st.error(f"Error loading label encoder for {target}: {e}")
 
 # Define feature columns
 feature_columns = ['noise_db', 'water_outlet_temp', 'water_flow']
@@ -32,11 +38,14 @@ def predict(features):
     input_df = pd.DataFrame([features], columns=feature_columns)
     predictions = {}
     for target in target_columns:
-        model = catboost_models[target]
-        le = label_encoders[target]
-        prediction_encoded = model.predict(input_df)
-        prediction = le.inverse_transform(prediction_encoded)
-        predictions[target] = prediction[0]
+        try:
+            model = catboost_models[target]
+            le = label_encoders[target]
+            prediction_encoded = model.predict(input_df)
+            prediction = le.inverse_transform(prediction_encoded)
+            predictions[target] = prediction[0]
+        except Exception as e:
+            predictions[target] = f"Error predicting {target}: {e}"
     return predictions
 
 # Streamlit UI
