@@ -12,7 +12,7 @@ target_columns = ['bearings', 'exvalve', 'radiator', 'wpump']
 catboost_models = {}
 for target in target_columns:
     model = CatBoostClassifier()
-    model.load_model(f'catboost_model_{target}.cbm')
+    model.load_model(f'catboost_model_{target}.json')
     catboost_models[target] = model
 
 # Load Label Encoders
